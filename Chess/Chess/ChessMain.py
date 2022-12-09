@@ -1,6 +1,5 @@
 import pygame as p
-import ChessEngine
-import RandomMove
+from Chess import ChessEngine, RandomMove
 
 WIDTH = 512
 HEIGHT = 512
@@ -13,11 +12,10 @@ IMAGES = {}
 def loadImage():
     pieces = ["bR", "bN", "bB", "bQ", "bK", "bp", "wR", "wN", "wB", "wQ", "wK", "wp"]
     for piece in pieces:
-        IMAGES[piece] = p.transform.scale(p.image.load("image/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
+        IMAGES[piece] = p.transform.scale(p.image.load("Chess/image/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
 
 
 def main():
-
     p.init()
     screen = p.display.set_mode((WIDTH, HEIGHT))
     p.display.set_caption("Chess _ Ngo Van Huy 20204657 _ IT1 _ 05 _ K65 _ HUST")
@@ -32,8 +30,7 @@ def main():
     playerClicks = []
     gameOver = False
     playerOne = True
-    playerTwo = False
-
+    playerTwo = True
 
     while running:
         humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
@@ -86,9 +83,8 @@ def main():
             moveMade = True
             animate = True
 
-
         if moveMade:
-            if(animate):
+            if animate:
                 animation(gs.moveLog[-1], screen, gs.board, clock)
             validMoves = gs.getValidMoved()
             moveMade = False
@@ -103,14 +99,14 @@ def main():
                 drawText(screen, "White wins by checkmate")
         elif gs.staleMate:
             gameOver = True
-            drawText (screen, "Stalemate")
+            drawText(screen, "Stalemate")
         clock.tick(MAX_FPS)
         p.display.flip()
 
 
-def hightlightSquares (screen, gs, validMoves, sqSelected):
+def hightlightSquares(screen, gs, validMoves, sqSelected):
     if len(gs.moveLog) > 0:
-        lastMove =gs.moveLog[-1]
+        lastMove = gs.moveLog[-1]
         s = p.Surface((SQ_SIZE, SQ_SIZE))
         s.set_alpha(200)
         s.fill(p.Color("Light Blue"))
@@ -121,18 +117,18 @@ def hightlightSquares (screen, gs, validMoves, sqSelected):
             s = p.Surface((SQ_SIZE, SQ_SIZE))
             s.set_alpha(50)
             s.fill(p.Color('green'))
-            screen.blit(s, (c*SQ_SIZE, r *SQ_SIZE))
+            screen.blit(s, (c * SQ_SIZE, r * SQ_SIZE))
             s.set_alpha(150)
             s.fill(p.Color('light blue'))
             for move in validMoves:
                 if move.startRow == r and move.startCol == c:
                     screen.blit(s, (move.endCol * SQ_SIZE, move.endRow * SQ_SIZE))
 
+
 def drawGameState(screen, gs, validMoves, sqSelected):
     drawBoard(screen)
     hightlightSquares(screen, gs, validMoves, sqSelected)
     drawPieces(screen, gs.board)
-
 
 
 def drawBoard(screen):
@@ -150,6 +146,7 @@ def drawPieces(screen, board):
             piece = board[i][j]
             if piece != "--":
                 screen.blit(IMAGES[piece], p.Rect(j * SQ_SIZE, i * SQ_SIZE, SQ_SIZE, SQ_SIZE))
+
 
 def animation(move, screen, board, clock):
     global colors
@@ -173,20 +170,20 @@ def animation(move, screen, board, clock):
         p.display.flip()
         clock.tick(160)
 
+
 def drawText(screen, text):
     font = p.font.SysFont("Helvita", 32, True, False)
-    textObject = font.render(text, 0, p.Color('Gray'))
-    textLocation = p.Rect(0, 0, WIDTH, HEIGHT).move(WIDTH/2 - textObject.get_width()/2, HEIGHT/2 - textObject.get_height()/2)
+    textObject = font.render(text, False, p.Color('Gray'))
+    textLocation = p.Rect(0, 0, WIDTH, HEIGHT).move(WIDTH / 2 - textObject.get_width() / 2,
+                                                    HEIGHT / 2 - textObject.get_height() / 2)
     screen.blit(textObject, textLocation)
-    textObject = font.render(text, 0, p.Color('Black'))
+    textObject = font.render(text, False, p.Color('Black'))
     screen.blit(textObject, textLocation.move(2, 2))
-    textObject = font.render(text, 0, p.Color('Gray'))
+    textObject = font.render(text, False, p.Color('Gray'))
     screen.blit(textObject, textLocation.move(4, 4))
-    textObject = font.render(text, 0, p.Color('Black'))
+    textObject = font.render(text, False, p.Color('Black'))
     screen.blit(textObject, textLocation.move(6, 6))
 
-
-
-
-if __name__ == "__main__":
-    main()
+#
+# if __name__ == "__main__":
+#     main()
