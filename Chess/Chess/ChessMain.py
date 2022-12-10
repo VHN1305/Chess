@@ -1,11 +1,11 @@
 import pygame as p
-from Chess import ChessEngine, RandomMove
+from Chess import ChessEngine, RandomMove, MiniMax
 
 WIDTH = 512
 HEIGHT = 512
 DIMENSION = 8
 SQ_SIZE = HEIGHT // DIMENSION
-MAX_FPS = 160
+MAX_FPS = 30
 IMAGES = {}
 
 
@@ -19,6 +19,7 @@ def main():
     p.init()
     screen = p.display.set_mode((WIDTH, HEIGHT))
     p.display.set_caption("Chess _ Ngo Van Huy 20204657 _ IT1 _ 05 _ K65 _ HUST")
+    screen.fill(p.Color("white"))
     clock = p.time.Clock()
     gs = ChessEngine.gameState()
     validMoves = gs.getValidMoved()
@@ -29,8 +30,8 @@ def main():
     sqSelected = ()
     playerClicks = []
     gameOver = False
-    playerOne = True
-    playerTwo = True
+    playerOne = False
+    playerTwo = False
 
     while running:
         humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
@@ -78,7 +79,9 @@ def main():
 
         # AI Move thinking
         if not gameOver and not humanTurn:
-            AIMove = RandomMove.findRandomMove(validMoves)
+            AIMove = MiniMax.findBestMove(gs, validMoves)
+            if AIMove is None:
+                AIMove = RandomMove.findBestMove(gs, validMoves)
             gs.makeMove(AIMove)
             moveMade = True
             animate = True
@@ -159,16 +162,19 @@ def animation(move, screen, board, clock):
         drawBoard(screen)
         drawPieces(screen, board)
 
-        color = colors[(move.startRow + move.endRow) % 2]
+        color = colors[(move.endRow + move.endCol) % 2]
         endSquare = p.Rect(move.endCol * SQ_SIZE, move.endRow * SQ_SIZE, SQ_SIZE, SQ_SIZE)
         p.draw.rect(screen, color, endSquare)
 
         if move.pieceCaptured != '--':
+            if move.isEmPassantMove:
+                enpassant_row = move.endRow + 1 if move.pieceCaptured[0] == 'b' else move.endRow - 1
+                endSquare = p.Rect(move.endCol * SQ_SIZE, enpassant_row * SQ_SIZE, SQ_SIZE, SQ_SIZE)
             screen.blit(IMAGES[move.pieceCaptured], endSquare)
 
         screen.blit(IMAGES[move.pieceMoved], p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
         p.display.flip()
-        clock.tick(160)
+        clock.tick(60)
 
 
 def drawText(screen, text):
